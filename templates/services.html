@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Система управления заказами - Услуги и прайс-лист</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <!-- Header Section -->
+    {% include 'header.html' %}
+    
+    <!-- Main Content Section -->
+    <main>
+        <!-- Услуги -->
+        <section id="services" class="section active">
+            <div class="container">
+                <div class="dashboard-header">
+                    <h1 class="dashboard-title">Услуги и прайс-лист</h1>
+                    <div class="header-actions">
+                        <button class="add-btn" id="addServiceBtn">
+                            <i class="fas fa-plus"></i>
+                            Добавить услугу
+                        </button>
+                        <button class="btn-secondary" onclick="exportPriceList()">
+                            <i class="fas fa-download"></i>
+                            Экспорт прайса
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Статистика услуг -->
+                <div class="services-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-concierge-bell"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Всего услуг</h3>
+                            <span class="stat-value">{{ total_services }}</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Популярные услуги</h3>
+                            <span class="stat-value">{{ popular_services_count }}</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-ruble-sign"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Средняя цена</h3>
+                            <span class="stat-value">{{ avg_price }} ₽</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Активные услуги</h3>
+                            <span class="stat-value">{{ active_services_count }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Список услуг -->
+                <div class="services-container">
+                    <div class="services-header">
+                        <h2>Список услуг</h2>
+                        <div class="view-toggle">
+                            <button class="view-btn active" data-view="grid">
+                                <i class="fas fa-th"></i>
+                            </button>
+                            <button class="view-btn" data-view="list">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="services-grid" id="servicesView">
+                        {% for service in services %}
+                        <div class="service-card" data-id="{{ service.id }}">
+                            <div class="service-card-header">
+                                <h3 class="service-name">{{ service.name }}</h3>
+                                <span class="service-status {% if service.is_active %}status-active{% else %}status-inactive{% endif %}">
+                                    {% if service.is_active %}Активна{% else %}Неактивна{% endif %}
+                                </span>
+                            </div>
+                            
+                            <div class="service-card-body">
+                                <p class="service-description">{{ service.description|default:"Описание отсутствует" }}</p>
+                                
+                                <div class="service-details">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Базовая цена:</span>
+                                        <span class="detail-value price">{{ service.price }} ₽</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Категория:</span>
+                                        <span class="detail-value">{{ service.category.name|default:"Без категории" }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Время выполнения:</span>
+                                        <span class="detail-value">{{ service.duration }} дн.</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Использований:</span>
+                                        <span class="detail-value">{{ service.usage_count }} раз</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="service-card-footer">
+                                <div class="service-actions">
+                                    <button class="btn-edit" onclick="editService({{ service.id }})" title="Редактировать">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-toggle" onclick="toggleService({{ service.id }})" title="{% if service.is_active %}Деактивировать{% else %}Активировать{% endif %}">
+                                        <i class="fas {% if service.is_active %}fa-eye-slash{% else %}fa-eye{% endif %}"></i>
+                                    </button>
+                                    <button class="btn-delete" onclick="deleteService({{ service.id }})" title="Удалить">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="no-services">
+                            <i class="fas fa-concierge-bell"></i>
+                            <h3>Услуги не найдены</h3>
+                            <p>Добавьте первую услугу в ваш прайс-лист</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Прайс-лист -->
+                <div class="price-list-section">
+                    <div class="section-header">
+                        <h2>Прайс-лист</h2>
+                        <button class="btn-primary" onclick="printPriceList()">
+                            <i class="fas fa-print"></i> Печать
+                        </button>
+                    </div>
+                    
+                    <div class="price-list-container">
+                        <div class="price-list-header">
+                            <div class="company-info">
+                                <h3>ООО "Ваша Компания"</h3>
+                                <p>Прайс-лист услуг</p>
+                                <p>Актуально на: {% now "d.m.Y" %}</p>
+                            </div>
+                        </div>
+
+                        <table class="price-list-table">
+                            <thead>
+                                <tr>
+                                    <th>№</th>
+                                    <th>Услуга</th>
+                                    <th>Описание</th>
+                                    <th>Категория</th>
+                                    <th>Срок выполнения</th>
+                                    <th>Цена (₽)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for service in services %}
+                                {% if service.is_active %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td class="service-name">{{ service.name }}</td>
+                                    <td class="service-desc">{{ service.description|default:"-"|truncatewords:10 }}</td>
+                                    <td>{{ service.category.name|default:"-" }}</td>
+                                    <td>{{ service.duration }} дн.</td>
+                                    <td class="price">{{ service.price }} ₽</td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Модальное окно для добавления/редактирования услуги -->
+    <div class="modal" id="serviceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalServiceTitle">Добавить услугу</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="serviceForm" method="post">
+                {% csrf_token %}
+                <input type="hidden" id="serviceId" name="service_id" value="">
+                
+                <div class="form-group">
+                    <label for="serviceName">Название услуги *</label>
+                    <input type="text" id="serviceName" name="name" required placeholder="Введите название услуги">
+                </div>
+
+                <div class="form-group">
+                    <label for="serviceDescription">Описание услуги</label>
+                    <textarea id="serviceDescription" name="description" placeholder="Подробное описание услуги..." rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="servicePrice">Цена (руб.) *</label>
+                        <input type="number" id="servicePrice" name="price" required min="0" placeholder="1000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="serviceDuration">Срок выполнения (дней) *</label>
+                        <input type="number" id="serviceDuration" name="duration" required min="1" placeholder="7">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="serviceCategory">Категория</label>
+                        <select id="serviceCategory" name="category">
+                            <option value="">Выберите категорию</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="serviceStatus">Статус</label>
+                        <select id="serviceStatus" name="is_active">
+                            <option value="true">Активна</option>
+                            <option value="false">Неактивна</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="serviceMaterials">Материалы (через запятую)</label>
+                    <input type="text" id="serviceMaterials" name="materials" placeholder="Ткань, нитки, фурнитура...">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelServiceBtn">
+                        <i class="fas fa-times"></i> Отмена
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Сохранить услугу
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Футер -->
+    {% include 'footer.html' %}
+
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        // CSRF token для AJAX запросов
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            initServiceModals();
+            initViewToggle();
+            initSearch();
+        });
+
+        function initServiceModals() {
+            // Модальное окно для услуги
+            const serviceModal = document.getElementById('serviceModal');
+            const addServiceBtn = document.getElementById('addServiceBtn');
+            const cancelServiceBtn = document.getElementById('cancelServiceBtn');
+            const serviceForm = document.getElementById('serviceForm');
+            
+            if (addServiceBtn) {
+                addServiceBtn.addEventListener('click', () => {
+                    document.getElementById('modalServiceTitle').textContent = 'Добавить услугу';
+                    document.getElementById('serviceId').value = '';
+                    document.getElementById('serviceForm').reset();
+                    serviceModal.style.display = 'flex';
+                });
+            }
+            
+            if (cancelServiceBtn) {
+                cancelServiceBtn.addEventListener('click', () => {
+                    serviceModal.style.display = 'none';
+                });
+            }
+            
+            // Закрытие модальных окон
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    btn.closest('.modal').style.display = 'none';
+                });
+            });
+            
+            // Обработка формы
+            if (serviceForm) {
+                serviceForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveService();
+                });
+            }
+        }
+
+        function initViewToggle() {
+            const viewButtons = document.querySelectorAll('.view-btn');
+            const servicesView = document.getElementById('servicesView');
+            
+            viewButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const viewType = this.getAttribute('data-view');
+                    
+                    // Обновляем активную кнопку
+                    viewButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Меняем вид
+                    servicesView.className = viewType === 'grid' ? 'services-grid' : 'services-list';
+                });
+            });
+        }
+
+        function initSearch() {
+            const searchInput = document.getElementById('searchInput');
+            let searchTimeout;
+            
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    const searchValue = this.value.trim();
+                    let url = '?';
+                    if (searchValue) url += `search=${encodeURIComponent(searchValue)}`;
+                    window.location.href = url || '?';
+                }, 500);
+            });
+        }
+        
+        function editService(serviceId) {
+            // Загрузка данных услуги через AJAX
+            fetch(`/api/services/${serviceId}/`)
+                .then(response => response.json())
+                .then(service => {
+                    document.getElementById('modalServiceTitle').textContent = 'Редактировать услугу';
+                    document.getElementById('serviceId').value = service.id;
+                    document.getElementById('serviceName').value = service.name;
+                    document.getElementById('serviceDescription').value = service.description || '';
+                    document.getElementById('servicePrice').value = service.price;
+                    document.getElementById('serviceDuration').value = service.duration;
+                    document.getElementById('serviceCategory').value = service.category || '';
+                    document.getElementById('serviceStatus').value = service.is_active.toString();
+                    document.getElementById('serviceMaterials').value = service.materials || '';
+                    
+                    document.getElementById('serviceModal').style.display = 'flex';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ошибка при загрузке данных услуги');
+                });
+        }
+
+        function saveService() {
+            const formData = new FormData(document.getElementById('serviceForm'));
+            const serviceId = formData.get('service_id');
+            
+            // ИСПРАВЛЕННЫЙ URL - добавлен префикс /crm/
+            const url = '/crm/api/services/' + (serviceId ? serviceId + '/' : '');
+            const method = serviceId ? 'PUT' : 'POST';
+            
+            // Преобразуем FormData в объект
+            const data = {
+                'name': formData.get('name'),
+                'price': parseFloat(formData.get('price')) || 0,
+                'description': formData.get('description') || '',
+                'duration_days': parseInt(formData.get('duration_days')) || 7,
+                'is_active': formData.get('is_active') === 'true'
+            };
+            
+            console.log('Отправка запроса на:', url, 'с данными:', data);
+            
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert('Услуга успешно сохранена!');
+                    document.getElementById('serviceModal').style.display = 'none';
+                    location.reload();
+                } else {
+                    alert('Ошибка: ' + (data.error || 'Неизвестная ошибка'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка при сохранении услуги: ' + error.message);
+            });
+        }
+
+        function toggleService(serviceId) {
+            if (confirm('Изменить статус услуги?')) {
+                fetch(`crm/api/services/${serviceId}/toggle/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Статус услуги изменен!');
+                        location.reload();
+                    } else {
+                        alert('Ошибка: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ошибка при изменении статуса');
+                });
+            }
+        }
+
+        function deleteService(serviceId) {
+            if (confirm('Вы уверены, что хотите удалить эту услугу?')) {
+                fetch(`crm/api/services/${serviceId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Услуга удалена!');
+                        location.reload();
+                    } else {
+                        alert('Ошибка: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ошибка при удалении услуги');
+                });
+            }
+        }
+
+        function exportPriceList() {
+            window.open('crm/services/export/pdf/', '_blank');
+        }
+
+        function printPriceList() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

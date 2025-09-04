@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сделка #{{ deal.id }} - CRM Система</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        .deal-container {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .deal-info {
+            flex: 0 0 32%;
+            min-width: 300px;
+        }
+        
+        .deal-comments {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+        
+        .comments-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .comment {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .comment-author {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .comment-date {
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+        
+        .comment-text {
+            color: #333;
+            line-height: 1.5;
+            margin: 0;
+        }
+        
+        .comment-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .edit-toggle {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .edit-toggle:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        /* Адаптивность для мобильных */
+        @media (max-width: 968px) {
+            .deal-container {
+                flex-direction: column;
+            }
+            
+            .deal-info {
+                flex: none;
+                width: 100%;
+                min-width: unset;
+            }
+            
+            .deal-comments {
+                flex: none;
+                width: 100%;
+            }
+        }
+        
+        /* Стили для формы редактирования */
+        .edit-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        /* Иконки в деталях */
+        .detail-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .detail-icon {
+            width: 24px;
+            color: #667eea;
+            margin-right: 12px;
+            margin-top: 2px;
+        }
+        
+        .detail-content {
+            flex: 1;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .detail-value {
+            color: #555;
+            display: block;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+        
+        .status-new { background: #e3f2fd; color: #1976d2; }
+        .status-in_progress { background: #fff3e0; color: #f57c00; }
+        .status-ready { background: #e8f5e8; color: #388e3c; }
+        .status-completed { background: #f3e5f5; color: #7b1fa2; }
+        .status-cancelled { background: #ffebee; color: #d32f2f; }
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+
+    <main>
+        <div class="container">
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">Сделка #{{ deal.id }}</h1>
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Назад
+                </a>
+            </div>
+
+            <!-- Сообщения -->
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="deal-container">
+                <!-- Левая колонка - Информация о сделке -->
+                <div class="deal-info">
+                    <button class="edit-toggle" onclick="toggleEditMode()">
+                        <i class="fas fa-edit"></i> Редактировать сделку
+                    </button>
+
+                    <div class="info-card view-mode">
+                        <h3 style="margin-bottom: 20px; color: #2c3e50;">
+                            <i class="fas fa-info-circle"></i> Информация о сделке
+                        </h3>
+
+                        <!-- Клиент -->
+                        <div class="detail-item">
+                            <div class="detail-icon"><i class="fas fa-user"></i></div>
+                            <div class="detail-content">
+                                <span class="detail-label">Клиент</span>
+                                <span class="detail-value">{{ deal.client.name }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Контакты -->
+                        <div class="detail-item">
+                            <div class="detail-icon"><i class="fas fa-phone"></i></div>
+                            <div class="detail-content">
+                                <span class="detail-label">Телефон</span>
+                                <a href="tel:{{ deal.client.phone }}" class="detail-value">
+                                    {{ deal.client.phone }}
+                                </a>
+                            </div>
+                        </div>
+
+                        {% if deal.client.email %}
+                        <div class="detail-item">
+                            <div class="detail-icon"><i class="fas fa-envelope"></i></div>
+                            <div class="detail-content">
+                                <span class="detail-label">Email</span>
+                                <a href="mailto:{{ deal.client.email }}" class="detail-value">
+                                    {{ deal.client.email }}
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Услуга -->
+                        <div class="detail-item">
+                            <div class="detail-icon"><i class="fas fa-cog"></i></div>
+                            <div class="detail-content">
+                                <span class="detail-label">Услуга</span>
+                                <span class="detail-value">{{ deal.service.name }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Стоимость -->
+                        <div class="detail-item">
+                            <div class="detail-icon"><i class="fas fa-ruble-sign"></i></div>
+                            <div class="detail-content">
+                                <span class="detail-label">Стоимость</span>
+                                <span class="detail-value">{{ deal.price }} руб.</span>
+                            </div>
+                        </div>
+
+                        <!-- Статус -->
+                        <div class="detail-item">
+                            <div class="detail-icon"><i class="fas fa-status"></i></div>
+                            <div class="detail-content">
+                                <span class="detail-label">Статус</span>
+                                <span class="detail-value">
+                                    <span class="status-badge status-{{ deal.status }}">
+                                        {{ deal.get_status_display }}
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Даты -->
+                        <div class="detail-item">
+                            <div class="detail-icon"><i class="fas fa-calendar"></i></div>
+                            <div class="detail-content">
+                                <span class="detail-label">Дата начала</span>
+                                <span class="detail-value">{{ deal.start_date|date:"d.m.Y H:i" }}</span>
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-icon"><i class="fas fa-calendar-check"></i></div>
+                            <div class="detail-content">
+                                <span class="detail-label">Дата окончания</span>
+                                <span class="detail-value">{{ deal.end_date|date:"d.m.Y H:i" }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Описание -->
+                        {% if deal.description %}
+                        <div class="detail-item">
+                            <div class="detail-icon"><i class="fas fa-file-alt"></i></div>
+                            <div class="detail-content">
+                                <span class="detail-label">Описание</span>
+                                <span class="detail-value">{{ deal.description }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Системная информация -->
+                        <div class="detail-item">
+                            <div class="detail-icon"><i class="fas fa-clock"></i></div>
+                            <div class="detail-content">
+                                <span class="detail-label">Создана</span>
+                                <span class="detail-value">{{ deal.created_at|date:"d.m.Y H:i" }}</span>
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-icon"><i class="fas fa-sync"></i></div>
+                            <div class="detail-content">
+                                <span class="detail-label">Обновлена</span>
+                                <span class="detail-value">{{ deal.updated_at|date:"d.m.Y H:i" }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Форма редактирования (изначально скрыта) -->
+                    <div class="edit-form edit-mode" style="display: none;">
+                        <h3><i class="fas fa-edit"></i> Редактирование сделки</h3>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="edit_deal" value="true">
+                            
+                            <!-- Здесь будет форма редактирования -->
+                            <div class="form-group">
+                                <label>ФИО клиента *</label>
+                                <input type="text" name="client_name" value="{{ deal.client.name }}" 
+                                       class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Телефон *</label>
+                                <input type="tel" name="client_phone" value="{{ deal.client.phone }}" 
+                                       class="form-control" required>
+                            </div>
+                            
+                            <!-- Остальные поля формы... -->
+                            
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" onclick="toggleEditMode()">
+                                    Отмена
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    Сохранить
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Правая колонка - Комментарии -->
+                <div class="deal-comments">
+                    <div class="comments-section">
+                        <h3 style="margin-bottom: 20px; color: #2c3e50;">
+                            <i class="fas fa-comments"></i> Комментарии
+                        </h3>
+
+                        {% for comment in deal.comments.all %}
+                        <div class="comment">
+                            <div class="comment-header">
+                                <span class="comment-author">{{ comment.author.username }}</span>
+                                <span class="comment-date">{{ comment.created_at|date:"d.m.Y H:i" }}</span>
+                            </div>
+                            <p class="comment-text">{{ comment.text }}</p>
+                        </div>
+                        {% empty %}
+                        <div style="text-align: center; padding: 30px; color: #7f8c8d;">
+                            <i class="fas fa-comment-slash fa-2x" style="margin-bottom: 10px;"></i>
+                            <p>Комментариев пока нет</p>
+                        </div>
+                        {% endfor %}
+
+                        <!-- Форма добавления комментария -->
+                        {% if user.is_authenticated %}
+                        <div class="comment-form">
+                            <h4><i class="fas fa-plus-circle"></i> Добавить комментарий</h4>
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="add_comment" value="true">
+                                <div class="form-group">
+                                    <textarea name="text" rows="3" placeholder="Введите ваш комментарий..." 
+                                              class="form-control" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Отправить
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function toggleEditMode() {
+            const viewMode = document.querySelector('.view-mode');
+            const editMode = document.querySelector('.edit-mode');
+            const editBtn = document.querySelector('.edit-toggle');
+            
+            if (viewMode.style.display === 'none') {
+                viewMode.style.display = 'block';
+                editMode.style.display = 'none';
+                editBtn.innerHTML = '<i class="fas fa-edit"></i> Редактировать сделку';
+            } else {
+                viewMode.style.display = 'none';
+                editMode.style.display = 'block';
+                editBtn.innerHTML = '<i class="fas fa-times"></i> Отменить редактирование';
+            }
+        }
+    </script>
+</body>
+</html>

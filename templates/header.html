@@ -1,0 +1,38 @@
+<header>
+    <div class="container">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <span>CRM Система</span>
+            </div>
+            
+            <nav>
+                <a href="{% url 'dashboard' %}" class="nav-btn" data-section="main">
+                    Главная
+                </a>
+                <a href="{% url 'closed_deals' %}" class="nav-btn" data-section="closed">
+                    Закрытые
+                </a>
+                <a href="{% url 'successful_deals' %}" class="nav-btn" data-section="successful">
+                    Успешные
+                </a>
+                <a href="{% url 'services' %}" class="nav-btn" data-section="services">
+                    Услуги
+                </a>
+                <a href="{% url 'contacts' %}" class="nav-btn" data-section="contacts">
+                    Контакты
+                </a>
+                <a href="{% url 'statistics' %}" class="nav-btn" data-section="stats">
+                    Статистика
+                </a>
+            </nav>
+            
+            <div class="header-right">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Поиск по клиентам и заказам">
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ client.name }} - CRM Система</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <header>
+        {% include 'header.html' %}
+
+    <main>
+        <div class="container">
+            <div class="client-detail-header">
+                <h1>{{ client.name }}</h1>
+                <a href="{% url 'contacts' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Назад к контактам
+                </a>
+            </div>
+
+            <div class="client-info-card">
+                <div class="client-contact-info">
+                    <p><i class="fas fa-phone"></i> {{ client.phone }}</p>
+                    {% if client.email %}
+                    <p><i class="fas fa-envelope"></i> {{ client.email }}</p>
+                    {% endif %}
+                    {% if client.notes %}
+                    <p><i class="fas fa-sticky-note"></i> {{ client.notes }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="client-stats">
+                    <div class="stat-item">
+                        <span class="stat-value">{{ total_deals }}</span>
+                        <span class="stat-label">Всего сделок</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">{{ total_spent }} руб.</span>
+                        <span class="stat-label">Всего потратил</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">{{ active_deals }}</span>
+                        <span class="stat-label">Активных сделок</span>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Сделки клиента</h2>
+            <div class="deals-list">
+                {% for deal in deals %}
+                <div class="deal-card">
+                    <div class="deal-header">
+                        <h3>Сделка #{{ deal.id }}</h3>
+                        <span class="deal-status status-{{ deal.status }}">
+                            {{ deal.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    <div class="deal-services">
+                        <strong>Услуги:</strong>
+                        {% for deal_service in deal.dealservice_set.all %}
+                        <div class="service-item">
+                            {{ deal_service.service.name }} - {{ deal_service.price }} руб.
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="deal-dates">
+                        <p>Начало: {{ deal.start_date|date:"d.m.Y" }}</p>
+                        <p>Окончание: {{ deal.end_date|date:"d.m.Y" }}</p>
+                    </div>
+                    
+                    <div class="deal-total">
+                        <strong>Итого: {{ deal.total_price }} руб.</strong>
+                    </div>
+                    
+                    <a href="{% url 'deal_detail' deal.id %}" class="btn btn-sm btn-info">
+                        <i class="fas fa-eye"></i> Подробнее
+                    </a>
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <i class="fas fa-file-contract fa-3x"></i>
+                    <h3>Сделок нет</h3>
+                    <p>У этого клиента пока нет сделок</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+</body>
+</html>
