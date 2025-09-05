@@ -4,13 +4,13 @@
 - pip install -r requirements.txt
 - python manage.py makemigrations
 - python manage.py migrate
-- python manage.py makemigrations main_app
-- python manage.py migrate main_app
 - python manage.py createsuperuser
 - python manage.py runserver
 # Полезные допы.
 - python manage.py showmigrations
 - python manage.py migrate contenttypes zero
+- python manage.py makemigrations main_app
+- python manage.py migrate main_app
 # Задачи.
 1. Оформление визуала.
 - В создании новой сделки добавление услуг сьезжает

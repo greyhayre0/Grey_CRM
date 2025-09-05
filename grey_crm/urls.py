@@ -24,7 +24,7 @@ def redirect_to_crm(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('crm/', include('main_app.urls')),
+    path('crm/', include('core.urls')),
     path('', redirect_to_crm),
     #path('accounts/', include('django.contrib.auth.urls')),
 ]
