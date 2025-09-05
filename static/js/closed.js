@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (statusFilter !== 'all') url += `status=${statusFilter}&`;
             if (dateFilter !== 'all') url += `date=${dateFilter}&`;
                     
-            // Убираем последний & если он есть
             if (url.endsWith('&')) url = url.slice(0, -1);
             if (url.endsWith('?')) url = url.slice(0, -1);
                     

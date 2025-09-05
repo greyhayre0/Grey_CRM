@@ -16,7 +16,7 @@ body {
 }
         
 .container {
-    max-width: 1400px;
+    max-width: 95%;
     margin: 0 auto;
     padding: 0 15px;
 }
@@ -539,7 +539,7 @@ main {
 }
         
 /* ===== RESPONSIVE STYLES ===== */
-@media (max-width: 1200px) {
+@media (max-width: 95%) {
     .columns {
         flex-wrap: wrap;
     }
@@ -553,7 +553,7 @@ main {
     }
 }
         
-@media (max-width: 768px) {
+@media (max-width: 100%) {
     .header-content {
         flex-direction: column;
         align-items: flex-start;
@@ -634,7 +634,7 @@ footer {
     color: white;
 }
         
-@media (max-width: 768px) {
+@media (max-width: 100%) {
     .footer-content {
         flex-direction: column;
         gap: 15px;

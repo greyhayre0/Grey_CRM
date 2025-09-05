@@ -32,28 +32,15 @@
                             <option value="month" {% if date_filter == 'month' %}selected{% endif %}>За месяц</option>
                             <option value="quarter" {% if date_filter == 'quarter' %}selected{% endif %}>За квартал</option>
                         </select>
+                        <select id="sortBy">
+                            <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Сначала новые</option>
+                            <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Сначала старые</option>
+                            <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Цена по убыванию</option>
+                            <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Цена по возрастанию</option>
+                        </select>
                     </div>
                 </div>
-
-                <!-- Сводная статистика -->
-                <div class="stats-summary">
-                    <div class="stat-item">
-                        <span class="stat-number">{{ total_closed_deals }}</span>
-                        <span class="stat-label">Всего закрытых сделок</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">{{ completed_deals_count }}</span>
-                        <span class="stat-label">Выполнено</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">{{ cancelled_deals_count }}</span>
-                        <span class="stat-label">Отменено</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">{{ total_revenue }} ₽</span>
-                        <span class="stat-label">Общая выручка</span>
-                    </div>
-                </div>
+                
 
                 <!-- Таблица закрытых сделок -->
                 <div class="deals-table-container">
@@ -87,8 +74,8 @@
                                     </a>
                                 </td>
                                 <td>{{ deal.service.name }}</td>
-                                <td>{{ deal.created_at|date:"d.m.Y H:i" }}</td>
-                                <td>{{ deal.updated_at|date:"d.m.Y H:i" }}</td>
+                                <td>{{ deal.created_at|date:"d.m.Y" }}</td>
+                                <td>{{ deal.updated_at|date:"d.m.Y" }}</td>
                                 <td class="price">{{ deal.price }} ₽</td>
                                 <td>
                                     <span class="status-badge {% if deal.status == 'completed' %}status-completed{% else %}status-cancelled{% endif %}">

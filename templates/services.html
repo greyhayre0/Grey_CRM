@@ -19,8 +19,23 @@
         <section id="services" class="section active">
             <div class="container">
                 <div class="dashboard-header">
-                    <h1 class="dashboard-title">Услуги и прайс-лист</h1>
+                                    <!-- Прайс-лист -->
+                    <div class="price-list-section">
+                        <div class="section-header">
+                            <h2>Прайс-лист</h2>
+                        </div>
+                        
+                        <div class="price-list-container">
+                            <div class="price-list-header">
+                                <div class="company-info">
+                                    <h3>ООО "Ваша Компания"</h3>
+                                    <p>Актуально на: {% now "d.m.Y" %}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="header-actions">
+                        
                         <button class="add-btn" id="addServiceBtn">
                             <i class="fas fa-plus"></i>
                             Добавить услугу
@@ -29,53 +44,14 @@
                             <i class="fas fa-download"></i>
                             Экспорт прайса
                         </button>
-                    </div>
-                </div>
-
-                <!-- Статистика услуг -->
-                <div class="services-stats">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-concierge-bell"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>Всего услуг</h3>
-                            <span class="stat-value">{{ total_services }}</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>Популярные услуги</h3>
-                            <span class="stat-value">{{ popular_services_count }}</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-ruble-sign"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>Средняя цена</h3>
-                            <span class="stat-value">{{ avg_price }} ₽</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>Активные услуги</h3>
-                            <span class="stat-value">{{ active_services_count }}</span>
-                        </div>
+                        
                     </div>
                 </div>
 
                 <!-- Список услуг -->
                 <div class="services-container">
                     <div class="services-header">
-                        <h2>Список услуг</h2>
+                        <h2>Список услуг <button class="btn-primary" onclick="printPriceList()"><i class="fas fa-print"></i> Печать</button></h2>
                         <div class="view-toggle">
                             <button class="view-btn active" data-view="grid">
                                 <i class="fas fa-th"></i>
@@ -140,53 +116,6 @@
                             <p>Добавьте первую услугу в ваш прайс-лист</p>
                         </div>
                         {% endfor %}
-                    </div>
-                </div>
-
-                <!-- Прайс-лист -->
-                <div class="price-list-section">
-                    <div class="section-header">
-                        <h2>Прайс-лист</h2>
-                        <button class="btn-primary" onclick="printPriceList()">
-                            <i class="fas fa-print"></i> Печать
-                        </button>
-                    </div>
-                    
-                    <div class="price-list-container">
-                        <div class="price-list-header">
-                            <div class="company-info">
-                                <h3>ООО "Ваша Компания"</h3>
-                                <p>Прайс-лист услуг</p>
-                                <p>Актуально на: {% now "d.m.Y" %}</p>
-                            </div>
-                        </div>
-
-                        <table class="price-list-table">
-                            <thead>
-                                <tr>
-                                    <th>№</th>
-                                    <th>Услуга</th>
-                                    <th>Описание</th>
-                                    <th>Категория</th>
-                                    <th>Срок выполнения</th>
-                                    <th>Цена (₽)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for service in services %}
-                                {% if service.is_active %}
-                                <tr>
-                                    <td>{{ forloop.counter }}</td>
-                                    <td class="service-name">{{ service.name }}</td>
-                                    <td class="service-desc">{{ service.description|default:"-"|truncatewords:10 }}</td>
-                                    <td>{{ service.category.name|default:"-" }}</td>
-                                    <td>{{ service.duration }} дн.</td>
-                                    <td class="price">{{ service.price }} ₽</td>
-                                </tr>
-                                {% endif %}
-                                {% endfor %}
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
