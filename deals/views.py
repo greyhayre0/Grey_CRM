@@ -76,205 +76,68 @@ def dashboard(request):
     return render(request, 'dashboard.html', context)
 
 
-def closed_deals(request):
-    """Страница с закрытыми сделками с фильтрацией"""
-    search_query = request.GET.get('search', '')
+def all_deals(request):
+    # Получаем все сделки
+    deals = Deal.objects.select_related('client').all()
+
+    # Фильтрация по статусу
     status_filter = request.GET.get('status', 'all')
-    date_filter = request.GET.get('date', 'all')
-
-    # Базовый запрос для закрытых сделок
-    closed_deals = Deal.objects.filter(
-        Q(status='completed') | Q(status='cancelled') |
-        Q(status='closed') | Q(status='successful')
-    ).select_related('client').prefetch_related('services'
-                                                ).order_by('-updated_at')
-
-    # Применение фильтров
-    if search_query:
-        closed_deals = closed_deals.filter(
-            Q(client__name__icontains=search_query) |
-            Q(client__phone__icontains=search_query) |
-            Q(client__email__icontains=search_query) |
-            Q(services__name__icontains=search_query) |
-            Q(description__icontains=search_query)
-        ).distinct()
-
     if status_filter != 'all':
-        closed_deals = closed_deals.filter(status=status_filter)
+        deals = deals.filter(status=status_filter)
 
+    # Фильтрация по дате
+    date_filter = request.GET.get('date', 'all')
     if date_filter != 'all':
+        from django.utils import timezone
+        from datetime import timedelta
+
         now = timezone.now()
         if date_filter == 'today':
-            start_date = now - timedelta(days=1)
+            deals = deals.filter(created_at__date=now.date())
         elif date_filter == 'week':
-            start_date = now - timedelta(days=7)
+            week_ago = now - timedelta(days=7)
+            deals = deals.filter(created_at__gte=week_ago)
         elif date_filter == 'month':
-            start_date = now - timedelta(days=30)
+            month_ago = now - timedelta(days=30)
+            deals = deals.filter(created_at__gte=month_ago)
         elif date_filter == 'quarter':
-            start_date = now - timedelta(days=90)
-        else:
-            start_date = None
+            quarter_ago = now - timedelta(days=90)
+            deals = deals.filter(created_at__gte=quarter_ago)
 
-        if start_date:
-            closed_deals = closed_deals.filter(updated_at__gte=start_date)
+    # Сортировка
+    sort_by = request.GET.get('sort', 'newest')
+    if sort_by == 'oldest':
+        deals = deals.order_by('created_at')
+    elif sort_by == 'price_high':
+        deals = deals.order_by('-price')
+    elif sort_by == 'price_low':
+        deals = deals.order_by('price')
+    else:  # newest по умолчанию
+        deals = deals.order_by('-created_at')
+
+    # Поиск
+    search_query = request.GET.get('search', '')
+    if search_query:
+        deals = deals.filter(
+            Q(client__name__icontains=search_query) |
+            Q(client__phone__icontains=search_query) |
+            Q(services__icontains=search_query)
+        )
 
     # Пагинация
-    paginator = Paginator(closed_deals, 20)
+    paginator = Paginator(deals, 25)  # 25 сделок на страницу
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    # Статистика
-    total_closed_deals = closed_deals.count()
-    completed_deals_count = closed_deals.filter(status='completed').count()
-    cancelled_deals_count = closed_deals.filter(status='cancelled').count()
-    closed_deals_count = closed_deals.filter(status='closed').count()
-    successful_deals_count = closed_deals.filter(status='successful').count()
-
-    # Расчет общей выручки
-    total_revenue = sum(
-        deal.total_price for deal in closed_deals.filter(
-            status__in=['completed', 'successful']))
-
     context = {
-        'closed_deals': page_obj,
-        'search_query': search_query,
+        'deals': page_obj,
         'status_filter': status_filter,
         'date_filter': date_filter,
-        'total_closed_deals': total_closed_deals,
-        'completed_deals_count': completed_deals_count,
-        'cancelled_deals_count': cancelled_deals_count,
-        'closed_deals_count': closed_deals_count,
-        'successful_deals_count': successful_deals_count,
-        'total_revenue': total_revenue,
-        'status_choices': Deal.STATUS_CHOICES,
+        'sort_by': sort_by,
+        'search_query': search_query,
     }
 
     return render(request, 'closed.html', context)
-
-
-def successful_deals(request):
-    """Страница с успешными сделками"""
-    search_query = request.GET.get('search', '')
-    service_filter = request.GET.get('service', 'all')
-    date_filter = request.GET.get('date', 'all')
-    sort_by = request.GET.get('sort', 'newest')
-
-    # Базовый запрос для успешных сделок
-    successful_deals = Deal.objects.filter(
-        Q(status='completed') | Q(status='successful')
-    ).select_related('client').prefetch_related(
-        'services').order_by('-updated_at')
-
-    # Применение фильтров
-    if search_query:
-        successful_deals = successful_deals.filter(
-            Q(client__name__icontains=search_query) |
-            Q(client__phone__icontains=search_query) |
-            Q(client__email__icontains=search_query) |
-            Q(services__name__icontains=search_query) |
-            Q(description__icontains=search_query)
-        ).distinct()
-
-    if service_filter != 'all':
-        successful_deals = successful_deals.filter(services__id=service_filter)
-
-    if date_filter != 'all':
-        now = timezone.now()
-        if date_filter == 'week':
-            start_date = now - timedelta(days=7)
-        elif date_filter == 'month':
-            start_date = now - timedelta(days=30)
-        elif date_filter == 'quarter':
-            start_date = now - timedelta(days=90)
-        elif date_filter == 'year':
-            start_date = now - timedelta(days=365)
-        else:
-            start_date = None
-
-        if start_date:
-            successful_deals = successful_deals.filter(
-                updated_at__gte=start_date)
-
-    # Сортировка
-    if sort_by == 'oldest':
-        successful_deals = successful_deals.order_by('updated_at')
-    elif sort_by == 'price_high':
-        successful_deals = successful_deals.annotate(
-            total_price=Sum('dealservice__price')
-        ).order_by('-total_price')
-    elif sort_by == 'price_low':
-        successful_deals = successful_deals.annotate(
-            total_price=Sum('dealservice__price')
-        ).order_by('total_price')
-    else:
-        successful_deals = successful_deals.order_by('-updated_at')
-
-    # Расчет дополнительных полей
-    deals_list = []
-    for deal in successful_deals:
-        # Получаем total_price через аннотацию или вычисляем
-        if hasattr(deal, 'total_price'):
-            total_price = deal.total_price or Decimal('0')
-        else:
-            total_price = deal.dealservice_set.aggregate(
-                total=Sum('price'))['total'] or Decimal('0')
-
-        # Преобразуем Decimal в float для расчетов
-        total_price_float = float(total_price)
-        profit = total_price_float * 0.6
-
-        if deal.start_date and deal.updated_at:
-            working_days = (
-                deal.updated_at.date() - deal.start_date.date()
-            ).days
-            working_days = max(working_days, 0)
-        else:
-            working_days = 0
-
-        # Добавляем вычисленные поля как обычные атрибуты
-        deal.working_days = working_days
-        deal.profit = int(profit)
-        deal.total_price_float = total_price_float
-        deals_list.append(deal)
-
-    # Пагинация
-    paginator = Paginator(deals_list, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    # Статистика - преобразуем Decimal в float
-    total_successful_deals = successful_deals.count()
-
-    # Вычисляем общую выручку
-    total_revenue_decimal = successful_deals.aggregate(
-        total_revenue=Sum('dealservice__price')
-    )['total_revenue'] or Decimal('0')
-    total_revenue = float(total_revenue_decimal)
-
-    avg_revenue_per_deal = (total_revenue / total_successful_deals
-                            if total_successful_deals > 0 else 0)
-
-    # Постоянные клиенты
-    repeat_clients_count = Deal.objects.filter(
-        Q(status='completed') | Q(status='successful')
-    ).values('client').annotate(
-        deal_count=Count('id')
-    ).filter(deal_count__gt=1).count()
-
-    context = {
-        'successful_deals': page_obj,
-        'all_services': Service.objects.all(),
-        'search_query': search_query,
-        'service_filter': service_filter,
-        'date_filter': date_filter,
-        'sort_by': sort_by,
-        'total_successful_deals': total_successful_deals,
-        'total_revenue': int(total_revenue),
-        'avg_revenue_per_deal': int(avg_revenue_per_deal),
-        'repeat_clients_count': repeat_clients_count,
-    }
-
-    return render(request, 'successful.html', context)
 
 
 def deal_detail(request, deal_id):
@@ -477,12 +340,16 @@ def restore_deal(request, deal_id):
 
 def delete_deal(request, deal_id):
     """Удаление сделки"""
-    if request.method == 'DELETE':
+    if request.method == 'POST':
         try:
             deal = Deal.objects.get(id=deal_id)
             deal.delete()
-            return JsonResponse({'success': True})
+            messages.success(request, 'Сделка успешно удалена')
+            return redirect('closed_deals')  # или на другую страницу
         except Deal.DoesNotExist:
-            return JsonResponse(
-                {'success': False, 'error': 'Сделка не найдена'})
-    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+            messages.error(request, 'Сделка не найдена')
+            return redirect('closed_deals')
+    
+    # Если метод не POST
+    messages.error(request, 'Неверный метод запроса')
+    return redirect('closed_deals')

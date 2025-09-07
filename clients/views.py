@@ -1,6 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
-from django.db.models import Q
 from .models import Client
 
 
@@ -44,37 +43,6 @@ def client_deals(request, client_id):
         'deals': deals,
     }
     return render(request, 'client_deals.html', context)
-
-
-def find_client_api(request):
-    """API для поиска клиента по телефону"""
-    phone = request.GET.get('phone', '').strip()
-
-    if not phone:
-        return JsonResponse({'success': False, 'message': 'Не указан телефон'})
-
-    try:
-        # Ищем клиента по точному совпадению телефона
-        client = Client.objects.filter(
-            Q(phone=phone) | Q(phone__contains=phone)
-        ).first()
-
-        if client:
-            return JsonResponse({
-                'success': True,
-                'client': {
-                    'id': client.id,
-                    'name': client.name,
-                    'phone': client.phone,
-                    'email': client.email or ''
-                }
-            })
-        else:
-            return JsonResponse(
-                {'success': False, 'message': 'Клиент не найден'})
-
-    except Exception as e:
-        return JsonResponse({'success': False, 'message': str(e)})
 
 
 def contacts(request):

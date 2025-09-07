@@ -112,7 +112,9 @@
                                     <h3 class="client-name">{{ deal.client.name }}</h3>
                                     <a href="tel:{{ deal.client.phone }}" class="client-phone">{{ deal.client.phone }}</a>
                                 </div>
-                                <i class="fas fa-ellipsis-v"></i>
+                                <button><a href="{% url 'deal_detail' deal.id %}" class="btn-view" title="Просмотреть">
+                                    <i class="fas fa-eye"></i>
+                                </a></button>
                             </div>
                             <p class="deal-date">{{ deal.start_date|date:"d.m.Y H:i" }} - {{ deal.end_date|date:"d.m.Y H:i" }}</p>
                             <span class="deal-service">
@@ -123,13 +125,13 @@
                             <p class="deal-price">{{ deal.total_price }} руб.</p>
                             <div class="deal-actions">
                                 <button class="status-btn btn-success" onclick="markAsSuccessful({{ deal.id }})">
-                                    Успешная
+                                    <i class="fas fa-check"></i> 
                                 </button>
                                 <button class="status-btn btn-closed" onclick="markAsClosed({{ deal.id }})">
-                                    Закрытая
+                                    <i class="fas fa-times"></i> 
                                 </button>
                                 <button class="status-btn btn-status" onclick="showStatusModal({{ deal.id }})">
-                                    Сменить статус
+                                    <i class="fas fa-edit"></i> 
                                 </button>
                             </div>
                         </div>
@@ -151,7 +153,9 @@
                                     <h3 class="client-name">{{ deal.client.name }}</h3>
                                     <a href="tel:{{ deal.client.phone }}" class="client-phone">{{ deal.client.phone }}</a>
                                 </div>
-                                <i class="fas fa-ellipsis-v"></i>
+                                <button><a href="{% url 'deal_detail' deal.id %}" class="btn-view" title="Просмотреть">
+                                    <i class="fas fa-eye"></i>
+                                </a></button>
                             </div>
                             <p class="deal-date">{{ deal.start_date|date:"d.m.Y H:i" }} - {{ deal.end_date|date:"d.m.Y H:i" }}</p>
                             <span class="deal-service">
@@ -162,13 +166,14 @@
                             <p class="deal-price">{{ deal.total_price }} руб.</p>
                             <div class="deal-actions">
                                 <button class="status-btn btn-success" onclick="markAsSuccessful({{ deal.id }})">
-                                    Успешная
+                                    
+                                    <i class="fas fa-check"></i> 
                                 </button>
                                 <button class="status-btn btn-closed" onclick="markAsClosed({{ deal.id }})">
-                                    Закрытая
+                                    <i class="fas fa-times"></i> 
                                 </button>
                                 <button class="status-btn btn-status" onclick="showStatusModal({{ deal.id }})">
-                                    Сменить статус
+                                    <i class="fas fa-edit"></i> 
                                 </button>
                             </div>
                         </div>
@@ -190,7 +195,9 @@
                                     <h3 class="client-name">{{ deal.client.name }}</h3>
                                     <a href="tel:{{ deal.client.phone }}" class="client-phone">{{ deal.client.phone }}</a>
                                 </div>
-                                <i class="fas fa-ellipsis-v"></i>
+                                <button><a href="{% url 'deal_detail' deal.id %}" class="btn-view" title="Просмотреть">
+                                    <i class="fas fa-eye"></i>
+                                </a></button>
                             </div>
                             <p class="deal-date">{{ deal.start_date|date:"d.m.Y H:i" }} - {{ deal.end_date|date:"d.m.Y H:i" }}</p>
                             <span class="deal-service">
@@ -201,13 +208,13 @@
                             <p class="deal-price">{{ deal.total_price }} руб.</p>
                             <div class="deal-actions">
                                 <button class="status-btn btn-success" onclick="markAsSuccessful({{ deal.id }})">
-                                    Успешная
+                                    <i class="fas fa-check"></i> 
                                 </button>
                                 <button class="status-btn btn-closed" onclick="markAsClosed({{ deal.id }})">
-                                    Закрытая
+                                    <i class="fas fa-times"></i> 
                                 </button>
                                 <button class="status-btn btn-status" onclick="showStatusModal({{ deal.id }})">
-                                    Сменить статус
+                                    <i class="fas fa-edit"></i> 
                                 </button>
                             </div>
                         </div>
@@ -227,9 +234,12 @@
                             <div class="deal-card-header">
                                 <div>
                                     <h3 class="client-name">{{ deal.client.name }}</h3>
-                                    <a href="tel:{{ deal.client.phone }}" class="client-phone">{{ deal.client.phone }}</a>
+                                    <a href="tel:{{ deal.client.phone }}" class="client-phone">{{ deal.client.phone }} </a>
+                                    
                                 </div>
-                                <i class="fas fa-ellipsis-v"></i>
+                                <button><a href="{% url 'deal_detail' deal.id %}" class="btn-view" title="Просмотреть">
+                                    <i class="fas fa-eye"></i>
+                                </a></button>
                             </div>
                             <p class="deal-date">{{ deal.start_date|date:"d.m.Y H:i" }} - {{ deal.end_date|date:"d.m.Y H:i" }}</p>
                             <span class="deal-service">
@@ -240,13 +250,13 @@
                             <p class="deal-price">{{ deal.total_price }} руб.</p>
                             <div class="deal-actions">
                                 <button class="status-btn btn-success" onclick="markAsSuccessful({{ deal.id }})">
-                                    Успешная
+                                    <i class="fas fa-check"></i> 
                                 </button>
                                 <button class="status-btn btn-closed" onclick="markAsClosed({{ deal.id }})">
-                                    Закрытая
+                                    <i class="fas fa-times"></i> 
                                 </button>
                                 <button class="status-btn btn-status" onclick="showStatusModal({{ deal.id }})">
-                                    Сменить статус
+                                    <i class="fas fa-edit"></i> 
                                 </button>
                             </div>
                         </div>

@@ -218,3 +218,8 @@ function showNotification(message, type = 'info') {
         }, 500);
     }, 3000);
 }
+
+function openDealDetails(dealId) {
+    // Перенаправляем на страницу деталей сделки
+    window.location.href = `/deal/${dealId}/`;
+}

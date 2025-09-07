@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM Система управления заказами - Закрытые сделки</title>
+    <title>CRM Система управления заказами - Все сделки</title>
     {% load static %}
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,34 +15,40 @@
     
     <!-- Main Content Section -->
     <main>
-        <!-- Закрытые сделки -->
-        <section id="closed" class="section active">
+        <!-- Все сделки -->
+        <section id="all-deals" class="section active">
             <div class="container">
                 <div class="dashboard-header">
-                    <h1 class="dashboard-title">Закрытые сделки</h1>
+                    <h1 class="dashboard-title">Все сделки</h1>
                     <div class="filters">
-                        <select id="statusFilter">
+                        <select id="statusFilter" onchange="filterDeals()">
                             <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Все статусы</option>
-                            <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Выполненные</option>
-                            <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Отмененные</option>
+                            <option value="new" {% if status_filter == 'new' %}selected{% endif %}>Новые</option>
+                            <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>В работе</option>
+                            <option value="completed" {% if status_filter == 'successful' %}selected{% endif %}>Выполненные</option>
+                            <option value="cancelled" {% if status_filter == 'closed' %}selected{% endif %}>Отмененные</option>
                         </select>
-                        <select id="dateFilter">
+                        <select id="dateFilter" onchange="filterDeals()">
                             <option value="all" {% if date_filter == 'all' %}selected{% endif %}>За все время</option>
+                            <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Сегодня</option>
                             <option value="week" {% if date_filter == 'week' %}selected{% endif %}>За неделю</option>
                             <option value="month" {% if date_filter == 'month' %}selected{% endif %}>За месяц</option>
                             <option value="quarter" {% if date_filter == 'quarter' %}selected{% endif %}>За квартал</option>
                         </select>
-                        <select id="sortBy">
+                        <select id="sortBy" onchange="filterDeals()">
                             <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Сначала новые</option>
                             <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Сначала старые</option>
-                            <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Цена по убыванию</option>
-                            <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Цена по возрастанию</option>
                         </select>
                     </div>
                 </div>
                 
-
-                <!-- Таблица закрытых сделок -->
+                <!-- Поиск и фильтры -->
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Поиск" id="dealSearch" onkeyup="searchDeals()">
+                </div>
+                
+                <!-- Таблица всех сделок -->
                 <div class="deals-table-container">
                     <table class="deals-table">
                         <thead>
@@ -51,15 +57,14 @@
                                 <th>Телефон</th>
                                 <th>Услуга</th>
                                 <th>Дата создания</th>
-                                <th>Дата закрытия</th>
                                 <th>Стоимость</th>
                                 <th>Статус</th>
-                                <th>Действия</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for deal in closed_deals %}
-                            <tr class="deal-row" data-id="{{ deal.id }}">
+                            {% for deal in deals %}
+                            <tr class="deal-row" data-id="{{ deal.id }}" data-status="{{ deal.status }}">
                                 <td>
                                     <div class="client-info">
                                         <strong>{{ deal.client.name }}</strong>
@@ -73,32 +78,36 @@
                                         {{ deal.client.phone }}
                                     </a>
                                 </td>
-                                <td>{{ deal.service.name }}</td>
+                                <td>{{ deal.prices }}</td>
                                 <td>{{ deal.created_at|date:"d.m.Y" }}</td>
-                                <td>{{ deal.updated_at|date:"d.m.Y" }}</td>
-                                <td class="price">{{ deal.price }} ₽</td>
+                                <td class="price">{{ deal.total_price }} ₽</td>
                                 <td>
-                                    <span class="status-badge {% if deal.status == 'completed' %}status-completed{% else %}status-cancelled{% endif %}">
-                                        {% if deal.status == 'completed' %}
-                                        Выполнена
-                                        {% else %}
-                                        Отменена
+                                    <span class="status-badge 
+                                        {% if deal.status == 'new' %}status-new
+                                        {% elif deal.status == 'in_progress' %}status-in-progress
+                                        {% elif deal.status == 'completed' %}status-completed
+                                        {% elif deal.status == 'cancelled' %}status-cancelled
+                                        {% endif %}">
+                                        {% if deal.status == 'new' %}Новая
+                                        {% elif deal.status == 'in_progress' %}В работе
+                                        {% elif deal.status == 'ready' %}Готов к выдаче
+                                        {% elif deal.status == 'successful' %}Выполнена
+                                        {% elif deal.status == 'closed' %}Отменена
                                         {% endif %}
                                     </span>
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="btn-view" onclick="viewDeal({{ deal.id }})" title="Просмотреть">
+                                        <button><a href="{% url 'deal_detail' deal.id %}" class="btn-view" title="Просмотреть">
                                             <i class="fas fa-eye"></i>
-                                        </button>
-                                        {% if deal.status == 'cancelled' %}
-                                        <button class="btn-restore" onclick="restoreDeal({{ deal.id }})" title="Восстановить">
-                                            <i class="fas fa-undo"></i>
-                                        </button>
-                                        {% endif %}
-                                        <button class="btn-delete" onclick="deleteDeal({{ deal.id }})" title="Удалить">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                        </a></button>
+                                        <form action="{% url 'delete_deal' deal.id %}" method="post" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn-delete" title="Удалить" 
+                                                    onclick="return confirm('Вы уверены, что хотите удалить эту сделку?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
@@ -106,7 +115,7 @@
                             <tr>
                                 <td colspan="8" class="no-data">
                                     <i class="fas fa-inbox"></i>
-                                    <p>Нет закрытых сделок</p>
+                                    <p>Нет сделок</p>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -115,21 +124,21 @@
                 </div>
 
                 <!-- Пагинация -->
-                {% if closed_deals.has_other_pages %}
+                {% if deals.has_other_pages %}
                 <div class="pagination">
                     <span class="step-links">
-                        {% if closed_deals.has_previous %}
-                            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if date_filter != 'all' %}&date={{ date_filter }}{% endif %}">&laquo; Первая</a>
-                            <a href="?page={{ closed_deals.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if date_filter != 'all' %}&date={{ date_filter }}{% endif %}">Назад</a>
+                        {% if deals.has_previous %}
+                            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if date_filter != 'all' %}&date={{ date_filter }}{% endif %}{% if sort_by != 'newest' %}&sort={{ sort_by }}{% endif %}">&laquo; Первая</a>
+                            <a href="?page={{ deals.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if date_filter != 'all' %}&date={{ date_filter }}{% endif %}{% if sort_by != 'newest' %}&sort={{ sort_by }}{% endif %}">Назад</a>
                         {% endif %}
 
                         <span class="current">
-                            Страница {{ closed_deals.number }} из {{ closed_deals.paginator.num_pages }}
+                            Страница {{ deals.number }} из {{ deals.paginator.num_pages }}
                         </span>
 
-                        {% if closed_deals.has_next %}
-                            <a href="?page={{ closed_deals.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if date_filter != 'all' %}&date={{ date_filter }}{% endif %}">Вперед</a>
-                            <a href="?page={{ closed_deals.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if date_filter != 'all' %}&date={{ date_filter }}{% endif %}">Последняя &raquo;</a>
+                        {% if deals.has_next %}
+                            <a href="?page={{ deals.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if date_filter != 'all' %}&date={{ date_filter }}{% endif %}{% if sort_by != 'newest' %}&sort={{ sort_by }}{% endif %}">Вперед</a>
+                            <a href="?page={{ deals.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter != 'all' %}&status={{ status_filter }}{% endif %}{% if date_filter != 'all' %}&date={{ date_filter }}{% endif %}{% if sort_by != 'newest' %}&sort={{ sort_by }}{% endif %}">Последняя &raquo;</a>
                         {% endif %}
                     </span>
                 </div>
@@ -142,7 +151,55 @@
     {% include 'footer.html' %}
 
     <script src="{% static 'js/main.js' %}"></script>
-    <script src="{% static 'js/closed.js' %}"></script>
-
+    <script>
+        function filterDeals() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+            
+            let url = '?';
+            if (statusFilter !== 'all') url += `status=${statusFilter}&`;
+            if (dateFilter !== 'all') url += `date=${dateFilter}&`;
+            if (sortBy !== 'newest') url += `sort=${sortBy}&`;
+            
+            // Убираем последний & если он есть
+            if (url.endsWith('&')) url = url.slice(0, -1);
+            
+            window.location.href = url;
+        }
+        
+        function searchDeals() {
+            const searchInput = document.getElementById('dealSearch');
+            const searchTerm = searchInput.value.toLowerCase();
+            const rows = document.querySelectorAll('.deal-row');
+            
+            rows.forEach(row => {
+                const clientName = row.querySelector('.client-info strong').textContent.toLowerCase();
+                const clientPhone = row.querySelector('.phone-link').textContent.toLowerCase();
+                const service = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                
+                if (clientName.includes(searchTerm) || clientPhone.includes(searchTerm) || service.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
 </body>
 </html>

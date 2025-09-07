@@ -11,8 +11,6 @@ class Deal(models.Model):
         ('new', 'Принята'),
         ('in_progress', 'В работе'),
         ('ready', 'Готов к выдаче'),
-        ('completed', 'Выполнена'),
-        ('cancelled', 'Отменена'),
         ('successful', 'Успешная'),
         ('closed', 'Закрытая'),
     ]
@@ -58,7 +56,11 @@ class Deal(models.Model):
 
     def get_services_with_prices(self):
         """Список услуг с ценами"""
-        return self.dealservice_set.select_related('service').all()
+        return self.dealservice_set.select_related('service').all()   
+
+    def prices(self):
+        services = self.dealservice_set.values_list('service__name', flat=True)
+        return ', '.join(services)
 
     def add_service(self, service, price=None):
         """Добавление услуги к сделке"""

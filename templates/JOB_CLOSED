@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Система управления заказами</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        .deal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .status-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        
+        .btn-closed {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-closed:hover {
+            background-color: #5a6268;
+        }
+        
+        .btn-status {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .btn-status:hover {
+            background-color: #0056b3;
+        }
+        
+        .services-container {
+            margin-bottom: 15px;
+        }
+        
+        .service-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 10px;
+        }
+        
+        .add-service-btn {
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .total-price {
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section --> 
+    {% include 'header.html' %}
+    
+    <!-- Main Content Section -->
+    <main>
+        <!-- Главная -->
+        <section id="main" class="section active">
+            <div class="container">
+                <div class="dashboard-header">
+                    <h1 class="dashboard-title">Панель управления заказами</h1>
+                    <button class="add-btn" id="addDealBtn">
+                        <i class="fas fa-plus"></i>
+                        Новая сделка
+                    </button>
+                </div>
+                
+                <div class="columns">
+                    <div class="column">
+                        <div class="column-header">
+                            <h2 class="column-title">Принятые</h2>
+                            <span class="deal-count">{{ deals_new|length }}</span>
+                        </div>
+                        
+                        {% for deal in deals_new %}
+                        <div class="deal-card" data-id="{{ deal.id }}">
+                            <div class="deal-card-header">
+                                <div>
+                                    <h3 class="client-name">{{ deal.client.name }}</h3>
+                                    <a href="tel:{{ deal.client.phone }}" class="client-phone">{{ deal.client.phone }}</a>
+                                </div>
+                               
+                            </div>
+                            <p class="deal-date">{{ deal.start_date|date:"d.m.Y H:i" }} - {{ deal.end_date|date:"d.m.Y H:i" }}</p>
+                            <span class="deal-service">
+                                {% for service in deal.services.all %}
+                                    {{ service.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </span>
+                            <p class="deal-price">{{ deal.total_price }} руб.</p>
+                            <div class="deal-actions">
+                                <button class="status-btn btn-success" onclick="markAsSuccessful({{ deal.id }})">
+                                    Успешная
+                                </button>
+                                <button class="status-btn btn-closed" onclick="markAsClosed({{ deal.id }})">
+                                    Закрытая
+                                </button>
+                                <button class="status-btn btn-status" onclick="showStatusModal({{ deal.id }})">
+                                    Сменить статус
+                                </button>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="no-deals">Нет принятых сделок</p>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="column">
+                        <div class="column-header">
+                            <h2 class="column-title">В работе</h2>
+                            <span class="deal-count">{{ deals_in_progress|length }}</span>
+                        </div>
+                        
+                        {% for deal in deals_in_progress %}
+                        <div class="deal-card" data-id="{{ deal.id }}">
+                            <div class="deal-card-header">
+                                <div>
+                                    <h3 class="client-name">{{ deal.client.name }}</h3>
+                                    <a href="tel:{{ deal.client.phone }}" class="client-phone">{{ deal.client.phone }}</a>
+                                </div>
+                               
+                            </div>
+                            <p class="deal-date">{{ deal.start_date|date:"d.m.Y H:i" }} - {{ deal.end_date|date:"d.m.Y H:i" }}</p>
+                            <span class="deal-service">
+                                {% for service in deal.services.all %}
+                                    {{ service.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </span>
+                            <p class="deal-price">{{ deal.total_price }} руб.</p>
+                            <div class="deal-actions">
+                                <button class="status-btn btn-success" onclick="markAsSuccessful({{ deal.id }})">
+                                    Успешная
+                                </button>
+                                <button class="status-btn btn-closed" onclick="markAsClosed({{ deal.id }})">
+                                    Закрытая
+                                </button>
+                                <button class="status-btn btn-status" onclick="showStatusModal({{ deal.id }})">
+                                    Сменить статус
+                                </button>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="no-deals">Нет сделок в работе</p>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="column">
+                        <div class="column-header">
+                            <h2 class="column-title">Просроченные</h2>
+                            <span class="deal-count">{{ expired_deals|length }}</span>
+                        </div>
+                        
+                        {% for deal in expired_deals %}
+                        <div class="deal-card" data-id="{{ deal.id }}">
+                            <div class="deal-card-header">
+                                <div>
+                                    <h3 class="client-name">{{ deal.client.name }}</h3>
+                                    <a href="tel:{{ deal.client.phone }}" class="client-phone">{{ deal.client.phone }}</a>
+                                </div>
+                                
+                            </div>
+                            <p class="deal-date">{{ deal.start_date|date:"d.m.Y H:i" }} - {{ deal.end_date|date:"d.m.Y H:i" }}</p>
+                            <span class="deal-service">
+                                {% for service in deal.services.all %}
+                                    {{ service.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </span>
+                            <p class="deal-price">{{ deal.total_price }} руб.</p>
+                            <div class="deal-actions">
+                                <button class="status-btn btn-success" onclick="markAsSuccessful({{ deal.id }})">
+                                    Успешная
+                                </button>
+                                <button class="status-btn btn-closed" onclick="markAsClosed({{ deal.id }})">
+                                    Закрытая
+                                </button>
+                                <button class="status-btn btn-status" onclick="showStatusModal({{ deal.id }})">
+                                    Сменить статус
+                                </button>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="no-deals">Нет просроченных сделок</p>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="column">
+                        <div class="column-header">
+                            <h2 class="column-title">Готов к выдаче</h2>
+                            <span class="deal-count">{{ deals_ready|length }}</span>
+                        </div>
+                        
+                        {% for deal in deals_ready %}
+                        <div class="deal-card" data-id="{{ deal.id }}">
+                            <div class="deal-card-header">
+                                <div>
+                                    <h3 class="client-name">{{ deal.client.name }}</h3>
+                                    <a href="tel:{{ deal.client.phone }}" class="client-phone">{{ deal.client.phone }}</a>
+                                </div>
+                               
+                            </div>
+                            <p class="deal-date">{{ deal.start_date|date:"d.m.Y H:i" }} - {{ deal.end_date|date:"d.m.Y H:i" }}</p>
+                            <span class="deal-service">
+                                {% for service in deal.services.all %}
+                                    {{ service.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </span>
+                            <p class="deal-price">{{ deal.total_price }} руб.</p>
+                            <div class="deal-actions">
+                                <button class="status-btn btn-success" onclick="markAsSuccessful({{ deal.id }})">
+                                    Успешная
+                                </button>
+                                <button class="status-btn btn-closed" onclick="markAsClosed({{ deal.id }})">
+                                    Закрытая
+                                </button>
+                                <button class="status-btn btn-status" onclick="showStatusModal({{ deal.id }})">
+                                    Сменить статус
+                                </button>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="no-deals">Нет сделок готовых к выдаче</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Модальное окно для сделки -->
+    <div class="modal" id="dealModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Новая сделка</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="dealForm" method="post" action="{% url 'create_deal' %}">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="clientName">ФИО клиента *</label>
+                        <input type="text" id="clientName" name="client_name" required placeholder="Введите полное имя">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="clientPhone">Телефон *</label>
+                        <input type="tel" id="clientPhone" name="client_phone" required placeholder="+7 (900) 123-45-67">
+                    </div>
+                </div>
+                
+                <div class="services-container" id="servicesContainer">
+                    <label>Услуги *</label>
+                    <div class="service-item">
+                        <select name="services[]" class="service-select" onchange="updateServicePrice(this)">
+                            <option value="">Выберите услугу</option>
+                            {% for service in services %}
+                            <option value="{{ service.id }}" data-price="{{ service.price }}">
+                                {{ service.name }} - {{ service.price }} руб.
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <input type="number" name="prices[]" placeholder="Цена" class="service-price" onchange="calculateTotal()">
+                        <button type="button" class="remove-service" onclick="removeService(this)" style="display:none;">×</button>
+                    </div>
+                </div>
+                
+                <button type="button" class="add-service-btn" onclick="addService()">
+                    <i class="fas fa-plus"></i> Добавить услугу
+                </button>
+                
+                <div class="total-price" id="totalPrice">
+                    Итого: 0 руб.
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="startDate">Дата начала *</label>
+                        <input type="datetime-local" id="startDate" name="start_date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="endDate">Дата окончания *</label>
+                        <input type="datetime-local" id="endDate" name="end_date" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="dealStatus">Статус сделки *</label>
+                    <select id="dealStatus" name="status" required>
+                        <option value="new">Принята</option>
+                        <option value="in_progress">В работе</option>
+                        <option value="ready">Готов к выдаче</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="dealDescription">Описание заказа</label>
+                    <textarea id="dealDescription" name="description" placeholder="Детали заказа, особые пожелания клиента..."></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelDealBtn">
+                        <i class="fas fa-times"></i> Отмена
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Сохранить сделку
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно для смены статуса -->
+    <div class="modal" id="statusModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Сменить статус сделки</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="statusForm">
+                {% csrf_token %}
+                <input type="hidden" id="statusDealId" name="deal_id">
+                
+                <div class="form-group">
+                    <label for="newStatus">Новый статус *</label>
+                    <select id="newStatus" name="status" required>
+                        <option value="new">Принята</option>
+                        <option value="in_progress">В работе</option>
+                        <option value="ready">Готов к выдаче</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeStatusModal()">
+                        <i class="fas fa-times"></i> Отмена
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="updateDealStatus()">
+                        <i class="fas fa-save"></i> Обновить статус
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Футер -->
+    {% include 'footer.html' %}
+
+    <script src="{% static 'js/dashboard.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

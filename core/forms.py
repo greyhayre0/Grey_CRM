@@ -130,7 +130,7 @@ class DealForm(forms.ModelForm):
 
     def clean(self):
         """
-        Валидация交叉ных полей
+        Валидация полей
         """
         cleaned_data = super().clean()
         start_date = cleaned_data.get('start_date')

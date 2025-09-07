@@ -1,8 +1,9 @@
 from django.urls import path
-from clients.views import contacts, create_client, client_detail, client_deals, find_client_api
-from deals.views import dashboard, closed_deals, successful_deals, deal_detail, create_deal, update_deal_status
+from .api import find_client_api, create_service_api
+from clients.views import contacts, create_client, client_detail, client_deals
+from deals.views import dashboard, deal_detail, create_deal, update_deal_status, all_deals, delete_deal
 from statistic.views import statistics
-from price.views import services, create_service_api
+from price.views import services
 
 urlpatterns = [
     # Основные маршруты приложения
@@ -10,18 +11,18 @@ urlpatterns = [
          name='dashboard'),  # Главная страница
     path('statistics/', statistics,
          name='statistics'),
-    path('closed/', closed_deals,
+    path('closed/', all_deals,
          name='closed_deals'),
-    path('successful/', successful_deals,
-         name='successful_deals'),
     path('services/', services,
          name='services'),
-    path('deal/<int:deal_id>/', deal_detail,
+    path('deal/delete/<int:deal_id>/', delete_deal, name='delete_deal'),
+    path('closed/<int:deal_id>/', deal_detail,
          name='deal_detail'),
     path('deal/create/', create_deal,
          name='create_deal'),
     path('deal/<int:deal_id>/update_status/', update_deal_status,
          name='update_deal_status'),
+
 
     # API endpoints
     path('api/services/', create_service_api,
