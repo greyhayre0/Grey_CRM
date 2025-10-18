@@ -13,18 +13,19 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, include
 from django.http import HttpResponseRedirect
 
 
 def redirect_to_crm(request):
-    return HttpResponseRedirect('crm')
+    return HttpResponseRedirect("crm")
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('crm/', include('core.urls')),
-    path('', redirect_to_crm),
-    #path('accounts/', include('django.contrib.auth.urls')),
+    path("admin/", admin.site.urls),
+    path("crm/", include("core.urls")),
+    path("", redirect_to_crm),
+    # path('accounts/', include('django.contrib.auth.urls')),
 ]

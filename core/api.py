@@ -3,16 +3,15 @@ from django.db.models import Q
 from clients.models import Client
 from price.models import Service
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
 import json
 
 
 def find_client_api(request):
     """API для поиска клиента по телефону"""
-    phone = request.GET.get('phone', '').strip()
+    phone = request.GET.get("phone", "").strip()
 
     if not phone:
-        return JsonResponse({'success': False, 'message': 'Не указан телефон'})
+        return JsonResponse({"success": False, "message": "Не указан телефон"})
 
     try:
         # Ищем клиента по точному совпадению телефона
@@ -21,21 +20,22 @@ def find_client_api(request):
         ).first()
 
         if client:
-            return JsonResponse({
-                'success': True,
-                'client': {
-                    'id': client.id,
-                    'name': client.name,
-                    'phone': client.phone,
-                    'email': client.email or ''
-                }
-            })
-        else:
             return JsonResponse(
-                {'success': False, 'message': 'Клиент не найден'})
+                {
+                    "success": True,
+                    "client": {
+                        "id": client.id,
+                        "name": client.name,
+                        "phone": client.phone,
+                        "email": client.email or "",
+                    },
+                }
+            )
+        else:
+            return JsonResponse({"success": False, "message": "Клиент не найден"})
 
     except Exception as e:
-        return JsonResponse({'success': False, 'message': str(e)})
+        return JsonResponse({"success": False, "message": str(e)})
 
 
 # API функции для услуг
@@ -45,24 +45,24 @@ def create_service_api(request):
     try:
         data = json.loads(request.body)
         service = Service.objects.create(
-            name=data.get('name'),
-            price=data.get('price', 0),
-            description=data.get('description', ''),
-            duration_days=data.get('duration_days', 7),
-            is_active=data.get('is_active', True)
+            name=data.get("name"),
+            price=data.get("price", 0),
+            description=data.get("description", ""),
+            duration_days=data.get("duration_days", 7),
+            is_active=data.get("is_active", True),
         )
 
-        return JsonResponse({
-            'success': True,
-            'service_id': service.id,
-            'message': 'Услуга успешно создана'
-        })
+        return JsonResponse(
+            {
+                "success": True,
+                "service_id": service.id,
+                "message": "Услуга успешно создана",
+            }
+        )
 
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=400)
+        return JsonResponse({"success": False, "error": str(e)}, status=400)
+
 
 ''' Пока ненужно не работает
 @csrf_exempt

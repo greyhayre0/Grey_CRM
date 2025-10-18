@@ -15,11 +15,11 @@
 
     <main>
         <div class="container">
+            <a href="{% url 'contacts' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Назад к контактам
+            </a>
             <div class="client-detail-header">
                 <h1>{{ client.name }}</h1>
-                <a href="{% url 'contacts' %}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Назад к контактам
-                </a>
             </div>
 
             <div class="client-info-card">

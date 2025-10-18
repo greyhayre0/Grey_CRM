@@ -254,7 +254,9 @@
                             <div class="detail-icon"><i class="fas fa-cog"></i></div>
                             <div class="detail-content">
                                 <span class="detail-label">Услуга</span>
-                                <span class="detail-value">{{ deal.service.name }}</span>
+                                <span class="detail-value">{% for service in deal.services.all %}
+                                    {{ service.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}</span>
                             </div>
                         </div>
 
@@ -263,7 +265,7 @@
                             <div class="detail-icon"><i class="fas fa-ruble-sign"></i></div>
                             <div class="detail-content">
                                 <span class="detail-label">Стоимость</span>
-                                <span class="detail-value">{{ deal.price }} руб.</span>
+                                <span class="detail-value">{{ deal.total_price }} руб.</span>
                             </div>
                         </div>
 
