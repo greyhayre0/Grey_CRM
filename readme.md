@@ -1,5 +1,3 @@
-![alt text](https://i.ibb.co/S48VJCvs/C6366-D1-E-BCE5-432-B-8-DDD-19-B43-A088-D94.png)
-
 # Установка при первом старте.
 - python -m venv venv
 - source venv/Scripts/activate
@@ -48,4 +46,5 @@
 > [!CAUTION]
 > Как бы не хотелось и не раздразжало работай сначала над функционалом далее оптимизации и только потом визуал иначе не доделаешь.
 
-![alt text](https://i.ibb.co/p6qHscNf/Untitled.png)
+![UI](https://i.ibb.co/S48VJCvs/C6366-D1-E-BCE5-432-B-8-DDD-19-B43-A088-D94.png)
+![shem](https://i.ibb.co/p6qHscNf/Untitled.png)
