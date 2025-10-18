@@ -46,5 +46,5 @@
 > [!CAUTION]
 > Как бы не хотелось и не раздразжало работай сначала над функционалом далее оптимизации и только потом визуал иначе не доделаешь.
 
-![UI](https://i.ibb.co/S48VJCvs/C6366-D1-E-BCE5-432-B-8-DDD-19-B43-A088-D94.png)
+![UI](https://i.postimg.cc/6q32LMyR/Ui.png)
 ![shem](https://i.ibb.co/p6qHscNf/Untitled.png)
