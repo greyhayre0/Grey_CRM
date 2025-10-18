@@ -1,4 +1,4 @@
-![alt text](https://ibb.co/67xDNCsn)
+![alt text](https://i.ibb.co/S48VJCvs/C6366-D1-E-BCE5-432-B-8-DDD-19-B43-A088-D94.png)
 
 # Установка при первом старте.
 - python -m venv venv
