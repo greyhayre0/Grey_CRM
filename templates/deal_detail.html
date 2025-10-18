@@ -22,7 +22,6 @@
         
         .deal-comments {
             flex: 1;
-            min-width: 0;
         }
         
         .info-card {
@@ -208,9 +207,6 @@
             <div class="deal-container">
                 <!-- Левая колонка - Информация о сделке -->
                 <div class="deal-info">
-                    <button class="edit-toggle" onclick="toggleEditMode()">
-                        <i class="fas fa-edit"></i> Редактировать сделку
-                    </button>
 
                     <div class="info-card view-mode">
                         <h3 style="margin-bottom: 20px; color: #2c3e50;">
@@ -327,46 +323,13 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Форма редактирования (изначально скрыта) -->
-                    <div class="edit-form edit-mode" style="display: none;">
-                        <h3><i class="fas fa-edit"></i> Редактирование сделки</h3>
-                        <form method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="edit_deal" value="true">
-                            
-                            <!-- Здесь будет форма редактирования -->
-                            <div class="form-group">
-                                <label>ФИО клиента *</label>
-                                <input type="text" name="client_name" value="{{ deal.client.name }}" 
-                                       class="form-control" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Телефон *</label>
-                                <input type="tel" name="client_phone" value="{{ deal.client.phone }}" 
-                                       class="form-control" required>
-                            </div>
-                            
-                            <!-- Остальные поля формы... -->
-                            
-                            <div class="form-actions">
-                                <button type="button" class="btn btn-secondary" onclick="toggleEditMode()">
-                                    Отмена
-                                </button>
-                                <button type="submit" class="btn btn-primary">
-                                    Сохранить
-                                </button>
-                            </div>
-                        </form>
-                    </div>
                 </div>
 
                 <!-- Правая колонка - Комментарии -->
                 <div class="deal-comments">
                     <div class="comments-section">
                         <h3 style="margin-bottom: 20px; color: #2c3e50;">
-                            <i class="fas fa-comments"></i> Комментарии
+                            <i class="fas fa-comments"></i>
                         </h3>
 
                         {% for comment in deal.comments.all %}
@@ -380,27 +343,19 @@
                         {% empty %}
                         <div style="text-align: center; padding: 30px; color: #7f8c8d;">
                             <i class="fas fa-comment-slash fa-2x" style="margin-bottom: 10px;"></i>
-                            <p>Комментариев пока нет</p>
+                            <p>Пока ничего нет</p>
+                        </div>
+                        <br>
+                        <div>
+                            <div class="form-group">
+                                <textarea name="text" rows="3" placeholder="Введите ваш комментарий..." 
+                                class="form-control" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Отправить
+                            </button>
                         </div>
                         {% endfor %}
-
-                        <!-- Форма добавления комментария -->
-                        {% if user.is_authenticated %}
-                        <div class="comment-form">
-                            <h4><i class="fas fa-plus-circle"></i> Добавить комментарий</h4>
-                            <form method="post">
-                                {% csrf_token %}
-                                <input type="hidden" name="add_comment" value="true">
-                                <div class="form-group">
-                                    <textarea name="text" rows="3" placeholder="Введите ваш комментарий..." 
-                                              class="form-control" required></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-paper-plane"></i> Отправить
-                                </button>
-                            </form>
-                        </div>
-                        {% endif %}
                     </div>
                 </div>
             </div>
