@@ -1,3 +1,4 @@
+![UI](https://i.postimg.cc/6q32LMyR/Ui.png)
 # Установка при первом старте.
 - python -m venv venv
 - source venv/Scripts/activate
@@ -46,5 +47,4 @@
 > [!CAUTION]
 > Как бы не хотелось и не раздразжало работай сначала над функционалом далее оптимизации и только потом визуал иначе не доделаешь.
 
-![UI](https://i.postimg.cc/6q32LMyR/Ui.png)
 ![shem](https://i.ibb.co/p6qHscNf/Untitled.png)
